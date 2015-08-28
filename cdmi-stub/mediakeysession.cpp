@@ -75,7 +75,7 @@ CMediaKeySession::CMediaKeySession(const char *sessionId) {
 
 CMediaKeySession::~CMediaKeySession(void) {}
 
-void CMediaKeySession::Run(
+char* CMediaKeySession::RunAndGetLicenceChallange(
     const IMediaKeySessionCallback *f_piMediaKeySessionCallback) {
   int ret;
   pthread_t thread;
@@ -90,11 +90,12 @@ void CMediaKeySession::Run(
       pthread_detach(thread);
     } else {
       cout << "#mediakeysession.Run: err: could not create thread" << endl;
-      return;
+      return NULL;
     }
   } else {
     cout << "#mediakeysession.Run: err: MediaKeySessionCallback NULL?" << endl;
   }
+  return NULL;
 }
 
 void* CMediaKeySession::_CallRunThread(void *arg) {

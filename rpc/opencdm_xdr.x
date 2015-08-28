@@ -75,6 +75,7 @@ struct rpc_response_generic {
 struct rpc_response_create_session {
     int platform_val;
     char session_id <>;
+    char licence_req <>;
 };
 
 program OPEN_CDM {

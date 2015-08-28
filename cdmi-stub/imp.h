@@ -28,7 +28,7 @@ public:
 
     virtual ~CMediaKeySession(void);
 
-    virtual void Run(
+    virtual char* RunAndGetLicenceChallange(
         const IMediaKeySessionCallback *f_piMediaKeySessionCallback);
 
     void* RunThread(int i);

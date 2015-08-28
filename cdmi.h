@@ -97,10 +97,8 @@ class IMediaKeySession
 public:
     virtual ~IMediaKeySession(void) {}
 
-    // Kicks off the process of acquiring a key. A MediaKeySession callback is supplied
-    // to receive notifications during the process.
-    virtual void Run(
-        const IMediaKeySessionCallback *f_piMediaKeySessionCallback) = 0; //__in 
+    virtual char* RunAndGetLicenceChallange(
+        const IMediaKeySessionCallback *f_piMediaKeySessionCallback) = 0; //__in
 
     // Process a key message response.
     virtual void Update(

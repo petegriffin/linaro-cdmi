@@ -110,6 +110,10 @@ struct rpc_response_create_session {
 		u_int session_id_len;
 		char *session_id_val;
 	} session_id;
+	struct {
+		u_int licence_req_len;
+		char *licence_req_val;
+	} licence_req;
 };
 typedef struct rpc_response_create_session rpc_response_create_session;
 

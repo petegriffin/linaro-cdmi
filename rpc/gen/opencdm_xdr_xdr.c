@@ -133,8 +133,10 @@ xdr_rpc_response_create_session (XDR *xdrs, rpc_response_create_session *objp)
 	 if (!xdr_int (xdrs, &objp->platform_val))
 		 return FALSE;
 	 if (!xdr_array (xdrs, (char **)&objp->session_id.session_id_val, (u_int *) &objp->session_id.session_id_len, ~0,
-		sizeof (char), (xdrproc_t) xdr_char)) {
+		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;
-   }
+	 if (!xdr_array (xdrs, (char **)&objp->licence_req.licence_req_val, (u_int *) &objp->licence_req.licence_req_len, ~0,
+		sizeof (char), (xdrproc_t) xdr_char))
+		 return FALSE;
 	return TRUE;
 }

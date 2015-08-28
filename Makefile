@@ -15,7 +15,7 @@
 #
 
 
-CXXFLAGS = -g
+CXXFLAGS = -O2 -pthread  -std=c++11
 
 RPC_DIR = rpc
 
@@ -46,7 +46,7 @@ all:  cdmi cdmiservice
 rpc: $(RPC_OBJECTS)
 
 cdmiservice: $(RPC_OBJECTS)
-	$(CXX) $(CXXFLAGS) -pthread -std=c++0x \
+	$(CXX) $(CXXFLAGS)  \
 		$(CDMI_INCLUDES) $(SERVICE_INCLUDES) -L . \
 		-o $@ $(SERVICE_SOURCES) $^ $(SERVICE_LIBS) $(CDMI_LFLAGSS)
 

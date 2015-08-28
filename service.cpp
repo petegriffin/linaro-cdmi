@@ -75,14 +75,14 @@ class CCallback : public IMediaKeySessionCallback {
       char *f_pszUrl) {
     uint8_t *pbChallenge = NULL;
     uint32_t cbChallenge = 0;
+
     string message;
 
-    message = string(f_pszUrl) + "#SPLIT#" +
-        string(reinterpret_cast<char*>(pbChallenge), cbChallenge);
+    cout << "OnKeyMessage: Key message received:.... : " << std::string((char*) pbKeyMessage, cbKeyMessage)<< endl;
+   
+    message =  std::string((const char*) pbKeyMessage, cbKeyMessage);
 
-    cout << "key message: [" << message << "]" << endl;
-
-    doCallback(ON_MESSAGE, message.c_str(), 0, m_mediaKeySession->GetSessionId());
+    doCallback(ON_MESSAGE, message.c_str(), CDMi_SUCCESS, m_mediaKeySession->GetSessionId());
   }
 
   virtual void OnKeyReady(void) {
@@ -147,7 +147,7 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
       reinterpret_cast<rpc_response_create_session*>(
       malloc(sizeof(rpc_response_create_session)));
   IMediaKeySessionCallback *callback = NULL;
-  char *dst;
+  char *dst, *lic;
 
   // callback_info for info on how to rpc callback into browser
   cout << "#open_cdm_mediakeys_create_session_1_svc: prog num: "
@@ -176,11 +176,11 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
       response->session_id.session_id_val = dst;
       response->session_id.session_id_len = sid_size;
 
-      cout << "#open_cdm_mediakeys_create_session_1_svc: creating new CCallbback" << endl;
       callback = new CCallback(p_mediaKeySession);
-
       // generates challenge
-      p_mediaKeySession->Run(callback);
+      lic = p_mediaKeySession->RunAndGetLicenceChallange(callback);
+      response->licence_req.licence_req_len = strlen(lic);
+      response->licence_req.licence_req_val = lic;
     }
   }
 
@@ -196,21 +196,22 @@ rpc_response_generic* rpc_open_cdm_mediakeys_load_session_1_svc(
 rpc_response_generic* rpc_open_cdm_mediakeysession_update_1_svc(
   rpc_request_session_update *params, struct svc_req *) {
   static CDMi_RESULT cr = CDMi_SUCCESS;
+  std::string sid;
+
   rpc_response_generic *response =
       reinterpret_cast<rpc_response_generic*>(
       malloc(sizeof(rpc_response_generic)));
   IMediaKeySession *p_mediaKeySession;
 
-  p_mediaKeySession = g_mediaKeySessions[params->session_id.session_id_val];
+  sid = std::string((char*) params->session_id.session_id_val, params->session_id.session_id_len);
+  p_mediaKeySession = g_mediaKeySessions[sid.c_str()];
 
   if (p_mediaKeySession) {
-    cout << "update for session id: " << params->session_id.session_id_val << endl;
-    cout << "key: [" << params->key.key_val << "]" << endl;
     p_mediaKeySession->Update(params->key.key_val,
         params->key.key_len);
     cr = CDMi_SUCCESS;
   } else {
-    cout << "no session found for session id: " << params->session_id.session_id_val<< endl;
+    cout << "no session found for session id: " << sid << endl;
     cr = CDMi_S_FALSE;
   }
 
@@ -227,8 +228,8 @@ rpc_response_generic* rpc_open_cdm_mediakeysession_release_1_svc(
   IMediaKeySession *p_mediaKeySession;
 
   cout << "#open_cdm_mediakeysession_release_1_svc " << endl;
-
-  p_mediaKeySession = g_mediaKeySessions[params->session_id.session_id_val];
+  std::string sid = std::string(params->session_id.session_id_val, params->session_id.session_id_len);
+  p_mediaKeySession = g_mediaKeySessions[sid.c_str()];
 
   if (p_mediaKeySession) {
     p_mediaKeySession->Close();
@@ -247,7 +248,6 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
   shmem_info *mesShmem;
   IMediaEngineSession *pMediaEngineSession = NULL;
   mesShmem = (shmem_info *) MapSharedMemory(idXchngShMem);
-
   cout << "#decryptShmem: " << idxMES << endl;
   cout << "#decryptShmem: " << idXchngSem << endl;
   cout << "#decryptShmem: " << idXchngShMem << endl;
@@ -314,17 +314,16 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
        */
       if(clear_content)
         pMediaEngineSession->ReleaseClearContent(clear_content_size, clear_content);
-
+      /* FIXME: We don't support subsamples */
       cr = pMediaEngineSession->Decrypt(
           0,          //number of subsamples
-          empty,       //subsamples
+          NULL,       //subsamples
           mesShmem->ivSize,
           mem_iv,
           mesShmem->sampleSize,
           mem_sample,
           &clear_content_size,
           &clear_content);
-
       // FIXME: opencdm uses a single buffer for passing the
       //  encrypted and decrypted buffer. Due to this we need an
       //  additional memcpy
@@ -358,8 +357,9 @@ rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
       << params->id_exchange_shmem << " "
       << params->id_exchange_sem << endl;
 
-  p_mediaKeySession = g_mediaKeySessions[params->session_id.session_id_val];
+  std::string sid = std::string(params->session_id.session_id_val, params->session_id.session_id_len);
 
+  p_mediaKeySession = g_mediaKeySessions[sid.c_str()];
   cr = CreateMediaEngineSession(p_mediaKeySession,
       &pMediaEngineSession);
 
