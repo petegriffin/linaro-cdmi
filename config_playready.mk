@@ -22,10 +22,14 @@ PLAYREADY_LPATHS = -L $(PLAYREADY_DIR)/obj \
 			-L $(PLAYREADY_DIR)/obj/lib
 
 CDMI_LFLAGSS:=	-l:cdmi.a \
-	-lplayreadypksoftwaretee \
-	-l:oem_linux.a\
+	-l:drmestreal.a \
+	-l:drmdatastorereal.a \
+	-l:libplayreadypk.a \
 	-l:oemnw.a\
 	-l:oemteeaes128ctr.a\
+	-l:oem_linux.a\
+	-l:oemteeproxypassthrough.a\
+	-l:oem_linux_tee.a \
 	$(PLAYREADY_LPATHS) \
 
 CDMI_DIR := cdmi-stub

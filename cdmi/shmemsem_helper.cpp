@@ -17,7 +17,7 @@
 /*
  * based on Keith Gaughan - Shared Memory and Semaphores - March 22, 2003
  */
-#include "shmemsem_helper.h"
+#include <shmemsem_helper.h>
 
 /**
  * Allocates a shared memory segment.

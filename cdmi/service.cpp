@@ -29,8 +29,7 @@
 
 #include "cdmi.h"
 
-// shared mem und semaphores stuff
-#include "libs/shmemsem/shmemsem_helper.h"
+#include "shmemsem/shmemsem_helper.h"
 
 extern "C" {
 #include "opencdm_xdr.h"
@@ -181,6 +180,8 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
       lic = p_mediaKeySession->RunAndGetLicenceChallange(callback);
       response->licence_req.licence_req_len = strlen(lic);
       response->licence_req.licence_req_val = lic;
+    }  else {
+      cout << "Failed to create session" << endl;
     }
   }
 
