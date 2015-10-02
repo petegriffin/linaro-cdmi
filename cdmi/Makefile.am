@@ -2,9 +2,9 @@ bin_PROGRAMS = cdmiservice
 cdmiservice_SOURCES = service.cpp shmemsem_helper.cpp
 
 if THREADS
-AM_CXXFLAGS = -pthread
+AM_CXXFLAGS += -pthread
 else
-AM_CXXFLAGS =
+AM_CXXFLAGS +=
 endif
 
 cdmiservice_LDADD = ${top_srcdir}/rpc/libocdm_rpc.a \

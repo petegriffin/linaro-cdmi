@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 Fraunhofer FOKUS
+ * Copyright 2015 Linaro LtD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@
 #include <vector>
 
 #include "cdmi.h"
-
+#include "cdmi-log.h"
 #include "shmemsem/shmemsem_helper.h"
 
 extern "C" {
@@ -77,20 +78,21 @@ class CCallback : public IMediaKeySessionCallback {
 
     string message;
 
-    cout << "OnKeyMessage: Key message received:.... : " << std::string((char*) pbKeyMessage, cbKeyMessage)<< endl;
-   
+    CDMI_DLOG() << "Key Message received:"
+        << std::string((char*) pbKeyMessage, cbKeyMessage);
+
     message =  std::string((const char*) pbKeyMessage, cbKeyMessage);
 
     doCallback(ON_MESSAGE, message.c_str(), CDMi_SUCCESS, m_mediaKeySession->GetSessionId());
   }
 
   virtual void OnKeyReady(void) {
-    cout << "OnKeyReady: Key is ready." << endl;
+    CDMI_DLOG() << "OnKeyReady: Key is ready.";
     doCallback(ON_READY, "", 0, m_mediaKeySession->GetSessionId());
   }
 
   virtual void OnKeyError(int16_t f_nError, CDMi_RESULT error) {
-    cout << "Key error is detected: " << error << endl;
+    CDMI_DLOG() << "Key error is detected: " << error;
     doCallback(ON_ERROR, "", error, m_mediaKeySession->GetSessionId());
   }
 
@@ -110,8 +112,8 @@ rpc_response_generic* rpc_open_cdm_is_type_supported_1_svc(
       reinterpret_cast<rpc_response_generic*>(
       malloc(sizeof(rpc_response_generic)));
 
-  cout << "#rpc_open_cdm_is_type_supported_1_svc: "
-       << type->key_system.key_system_val << endl;
+  CDMI_DLOG() << "#rpc_open_cdm_is_type_supported_1_svc: "
+       << type->key_system.key_system_val ;
   if (g_pMediaKeys) {
     cr = g_pMediaKeys->IsTypeSupported(
       reinterpret_cast<char *>(type->key_system.key_system_val),
@@ -131,8 +133,8 @@ rpc_response_generic* rpc_open_cdm_mediakeys_1_svc(
       reinterpret_cast<rpc_response_generic*>(
       malloc(sizeof(rpc_response_generic)));
 
-  cout << "#rpc_open_cdm_mediakeys_1_svc: "
-       << keysystem->key_system.key_system_val << endl;
+  CDMI_DLOG() << "#rpc_open_cdm_mediakeys_1_svc: "
+       << keysystem->key_system.key_system_val;
   cr = CreateMediaKeys(&g_pMediaKeys);
 
   response->platform_val = cr;
@@ -149,12 +151,11 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
   char *dst, *lic;
 
   // callback_info for info on how to rpc callback into browser
-  cout << "#open_cdm_mediakeys_create_session_1_svc: prog num: "
-       <<  sessionmessage->callback_info.prog_num << endl;
+  CDMI_DLOG() << "#open_cdm_mediakeys_create_session_1_svc: prog num: "
+       <<  sessionmessage->callback_info.prog_num ;
+
   g_pnum = sessionmessage->callback_info.prog_num;
 
-  cout << "#open_cdm_mediakeys_create_session_1_svc init_data_val: "
-       << &sessionmessage->init_data_type.init_data_type_val << endl;
   if (g_pMediaKeys) {
     IMediaKeySession *p_mediaKeySession =
         reinterpret_cast<IMediaKeySession*>(malloc(sizeof(IMediaKeySession)));
@@ -178,10 +179,11 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
       callback = new CCallback(p_mediaKeySession);
       // generates challenge
       lic = p_mediaKeySession->RunAndGetLicenceChallange(callback);
+      CDMI_WLOG() << "Licesnse :" << lic;
       response->licence_req.licence_req_len = strlen(lic);
       response->licence_req.licence_req_val = lic;
     }  else {
-      cout << "Failed to create session" << endl;
+      CDMI_ELOG() << "Failed to create session" ;
     }
   }
 
@@ -212,7 +214,7 @@ rpc_response_generic* rpc_open_cdm_mediakeysession_update_1_svc(
         params->key.key_len);
     cr = CDMi_SUCCESS;
   } else {
-    cout << "no session found for session id: " << sid << endl;
+    CDMI_ELOG() << "no session found for session id: " << sid ;
     cr = CDMi_S_FALSE;
   }
 
@@ -222,13 +224,16 @@ rpc_response_generic* rpc_open_cdm_mediakeysession_update_1_svc(
 
 rpc_response_generic* rpc_open_cdm_mediakeysession_release_1_svc(
   rpc_request_session_release *params, struct svc_req *) {
+
+  CDMI_DLOG() << "#open_cdm_mediakeysession_release_1_svc ";
+
   static CDMi_RESULT cr = CDMi_SUCCESS;
+
   rpc_response_generic *response =
       reinterpret_cast<rpc_response_generic*>(
       malloc(sizeof(rpc_response_generic)));
   IMediaKeySession *p_mediaKeySession;
 
-  cout << "#open_cdm_mediakeysession_release_1_svc " << endl;
   std::string sid = std::string(params->session_id.session_id_val, params->session_id.session_id_len);
   p_mediaKeySession = g_mediaKeySessions[sid.c_str()];
 
@@ -249,9 +254,6 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
   shmem_info *mesShmem;
   IMediaEngineSession *pMediaEngineSession = NULL;
   mesShmem = (shmem_info *) MapSharedMemory(idXchngShMem);
-  cout << "#decryptShmem: " << idxMES << endl;
-  cout << "#decryptShmem: " << idXchngSem << endl;
-  cout << "#decryptShmem: " << idXchngShMem << endl;
 
   for (;;) {
     /* ***** BENCHMARK begin ***** */
@@ -261,8 +263,8 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
 
     CDMi_RESULT cr = CDMi_SUCCESS;
     if (g_mediaEngineSessions.size() -1 < idxMES) {
-      cout << "decryptShmem: invalid media engine session idx: "
-           << idxMES << endl;
+      CDMI_ELOG() << "decryptShmem: invalid media engine session idx: "
+           << idxMES;
       cr = CDMi_S_FALSE;
       return;
     }
@@ -270,7 +272,7 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
     pMediaEngineSession = g_mediaEngineSessions.at(idxMES);
 
     if (pMediaEngineSession == NULL) {
-      cout << "decryptShmem: no valid media engine session found" << endl;
+      CDMI_ELOG() << "decryptShmem: no valid media engine session found";
       cr = CDMi_S_FALSE;
       return;
     } else {
@@ -329,9 +331,9 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
       //  encrypted and decrypted buffer. Due to this we need an
       //  additional memcpy
       if(clear_content_size != mesShmem->sampleSize)
-        cout << "Warning: returned clear sample size " << clear_content_size <<
+         CDMI_WLOG() << "Warning: returned clear sample size " << clear_content_size <<
           "differs from encrypted " <<
-          "buffer size"  << mesShmem->sampleSize << endl;
+          "buffer size"  << mesShmem->sampleSize;
 
       memcpy(mem_sample, clear_content, MIN(mesShmem->sampleSize, clear_content_size) );
 
@@ -354,9 +356,9 @@ rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
   IMediaKeySession *p_mediaKeySession;
   IMediaEngineSession *pMediaEngineSession = NULL;
 
-  cout << "#cdm_mediaenginesession_rpc_1_svc: "
+  CDMI_DLOG() << "#cdm_mediaenginesession_rpc_1_svc: "
       << params->id_exchange_shmem << " "
-      << params->id_exchange_sem << endl;
+      << params->id_exchange_sem;
 
   std::string sid = std::string(params->session_id.session_id_val, params->session_id.session_id_len);
 
@@ -372,7 +374,7 @@ rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
         params->id_exchange_shmem);
     t.detach();
   } else {
-    cout << "MediaEngineSession create failed!" << endl;
+    CDMI_ELOG() << "MediaEngineSession create failed!";
   }
 
   response->platform_val = cr;
@@ -384,16 +386,15 @@ void doCallback(
     string message = "",
     int error = 0,
     const char *sid = NULL) {
-  cout << "#doCallback" << endl;
   CLIENT *clnt;
 
   gethostname(g_hostname, sizeof(g_hostname));
 
-  cout << "#doCallback: eventType: " <<  eventType << endl;
-  cout << "#doCallback: hostname: " << g_hostname << endl;
-  cout << "#doCallback: prog num: " <<  g_pnum << endl;
+  CDMI_DLOG() << "#doCallback: eventType: " <<  eventType;
+  CDMI_DLOG() << "#doCallback: hostname: " << g_hostname;
+  CDMI_DLOG() << "#doCallback: prog num: " <<  g_pnum;
   if ((clnt = clnt_create(g_hostname, g_pnum, 1, "tcp")) == NULL) {
-    cerr << "service: doCallback: clnt_create" << endl;
+    CDMI_ELOG() << "service: doCallback: clnt_create";
     clnt_pcreateerror(g_hostname);
     exit(2);
   }
@@ -440,7 +441,7 @@ void doCallback(
       on_key_status_update_1(&msg, clnt);
       break;
     default:
-      cerr << "doCallback: unknown eventType" << endl;
+      CDMI_ELOG() << "doCallback: unknown eventType" ;
     }
     free(dst);
 }

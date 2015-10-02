@@ -12,7 +12,6 @@ AM_PROG_AR
 
 AC_PROG_RANLIB
 
-AC_OUTPUT(Makefile cdmi-stub/Makefile rpc/Makefile cdmi/Makefile)
 
 AC_CHECK_PROG(RPCGEN,rpcgen,rpcgen)
 
@@ -20,6 +19,26 @@ AX_CXX_COMPILE_STDCXX_11([noext])
 
 AX_CHECK_COMPILE_FLAG([-std=c++11], [
                         CXXFLAGS="$CXXFLAGS -std=c++11"])
+AC_ARG_ENABLE(debug,
+AS_HELP_STRING([--enable-debug],
+               [enable debugging, default: no]),
+[case "${enableval}" in
+             yes) debug=true ;;
+             no)  debug=false ;;
+             *)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],
+[debug=false])
+
+if  test x"$debug" = x"true"; then
+  AC_SUBST(AM_CXXFLAGS, "-g3 -O0 -DDEBUG -Werror")
+  AC_SUBST(AM_CFLAGS, "-g3 -O0 -DDEBUG -Werror")
+else
+  AC_SUBST(AM_CXXFLAGS, "-O2 -Werror")
+  AC_SUBST(AM_CFLAGS, "-O2 -Werror")
+fi
+
+
+AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 
 AC_ARG_ENABLE(threads, AC_HELP_STRING([--enable-threads],
                       [make a threading prog (default is yes)]),
@@ -41,3 +60,6 @@ fi
 
 AM_CONDITIONAL(OPENSSL, test $ac_enable_openssl = yes)
 AM_CONDITIONAL(THREADS, test $ac_enable_threads = yes)
+
+
+AC_OUTPUT(Makefile cdmi-stub/Makefile rpc/Makefile cdmi/Makefile)
