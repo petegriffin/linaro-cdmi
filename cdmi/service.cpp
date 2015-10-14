@@ -248,14 +248,14 @@ rpc_response_generic* rpc_open_cdm_mediakeysession_release_1_svc(
   return response;
 }
 
-void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
+void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
   shmem_info *mesShmem;
   IMediaEngineSession *pMediaEngineSession = NULL;
   mesShmem = (shmem_info *) MapSharedMemory(idXchngShMem);
 
   for (;;) {
 
-    CDMi_RESULT cr = CDMi_SUCCESS;
+    CDMi_RESULT cr;
     if (g_mediaEngineSessions.size() -1 < idxMES) {
       CDMI_ELOG() << "decryptShmem: invalid media engine session idx: "
            << idxMES;
@@ -320,6 +320,9 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
           mem_sample,
           &clear_content_size,
           &clear_content);
+      if(cr!=CDMi_SUCCESS)
+        CDMI_ELOG() << "Failed to decrypt sample. Error:" << cr;
+
       // FIXME: opencdm uses a single buffer for passing the
       //  encrypted and decrypted buffer. Due to this we need an
       //  additional memcpy
