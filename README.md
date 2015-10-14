@@ -1,3 +1,11 @@
+# Linaro CDMI
+
+Linaro CDMI is a fork of the [Open Content Decryption Module (OCDM)](https://github.com/fraunhoferfokus/open-content-decryption-module). The reason
+for creating this fork is to taget the outstanding issues with Open CDM described here:
+
+https://groups.google.com/forum/#!topic/opencdm/ovamIrJn3z0
+
+
 # Open Content Decryption Module CDMi
 
 The Open Content Decryption Module CDMi is to be used with the [Open Content Decryption Module (OCDM)](https://github.com/fraunhoferfokus/open-content-decryption-module). It is meant to run as a service connecting the webbrowser with the actual CDM. Any CDM that follows the Content Decryption Module Interface (CDMi) [1] can be used with this service. Together, both components enable DRM interoperability to be used with HTML5 based browser environments [2] according to W3C EME [3] specification.
@@ -36,7 +44,8 @@ The used development platform is Ubuntu Linux 14.04 64-bit, should work fine on 
 
 ## How to run
 
-*  ```$ ./service```
+*  ```$ cd cdmi```
+* ``` $ ./cdmiservice```
 
 ## Known Issues / Comments
 
@@ -51,6 +60,7 @@ Please see the OCDM repository for further information [github.com/fraunhoferfok
 ## License
 
 Copyright 2014 Fraunhofer FOKUS
+Copyright 2015 Linaro LtD
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
