@@ -68,7 +68,7 @@ static std::string keyIdAndKeyPairsToJSON(media::KeyIdAndKeyPairs *g_keys) {
     return result.str();
 }
 
-CMediaKeySession::CMediaKeySession(const char *sessionId) {
+CMediaKeySession::CMediaKeySession(const char *sessionId) : m_piCallback(NULL) {
   m_sessionId = sessionId;
   cout << "creating mediakeysession with id: " << m_sessionId << endl;
 }
@@ -108,6 +108,11 @@ void* CMediaKeySession::_CallRunThread2(void *arg) {
 
 void* CMediaKeySession::RunThread(int i) {
   cout << "#mediakeysession._RunThread" << endl;
+
+  if(!m_piCallback) {
+    cerr << "Callback function not set" <<endl;
+    return NULL;
+  }
 
   if (i == 1) {
     m_piCallback->OnKeyMessage(NULL, 0, const_cast<char*>(DESTINATION_URL_PLACEHOLDER));
