@@ -14,6 +14,10 @@ if OPENSSL
 cdmiservice_LDADD += -lcrypto -lssl
 endif
 
+if USE_PLAYREADY_CDMI
+include Makefile.playready
+endif
+
 AM_CXXFLAGS += -std=c++11 \
  	  -I${top_srcdir}/include \
     -I${top_srcdir}/rpc \

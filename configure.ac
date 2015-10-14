@@ -61,5 +61,16 @@ fi
 AM_CONDITIONAL(OPENSSL, test $ac_enable_openssl = yes)
 AM_CONDITIONAL(THREADS, test $ac_enable_threads = yes)
 
+# Enable Microsoft Playready
+AC_ARG_ENABLE(playready, AC_HELP_STRING([--enable-playready],
+                      [enable playready CDMI (default is no)]),
+                    ac_enable_playready=$enableval,
+                    ac_enable_playready=no)
+
+if test "$ac_enable_playready" = yes; then
+  AC_DEFINE(USE_PLAYREADY, 1, [use playready])
+fi
+
+AM_CONDITIONAL(USE_PLAYREADY_CDMI, test $ac_enable_playready = yes)
 
 AC_OUTPUT(Makefile cdmi-stub/Makefile rpc/Makefile cdmi/Makefile)

@@ -30,7 +30,8 @@ The used development platform is Ubuntu Linux 14.04 64-bit, should work fine on 
 ## How to build
 
 * clone this repository
-* compile with GNU make
+* Build
+ * ```$ ./configure```
  * ```$ make```
 
 ## How to run
