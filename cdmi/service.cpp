@@ -73,8 +73,6 @@ class CCallback : public IMediaKeySessionCallback {
       const uint8_t *pbKeyMessage,
       uint32_t cbKeyMessage,
       char *f_pszUrl) {
-    uint8_t *pbChallenge = NULL;
-    uint32_t cbChallenge = 0;
 
     string message;
 
@@ -256,10 +254,6 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
   mesShmem = (shmem_info *) MapSharedMemory(idXchngShMem);
 
   for (;;) {
-    /* ***** BENCHMARK begin ***** */
-    timespec ts_bm_decrypt_start, ts_bm_decrypt_end;
-    clock_gettime(CLOCK_MONOTONIC, &ts_bm_decrypt_start);
-    /* ***** BENCHMARK end ***** */
 
     CDMi_RESULT cr = CDMi_SUCCESS;
     if (g_mediaEngineSessions.size() -1 < idxMES) {
@@ -308,7 +302,6 @@ void decryptShmem(int idxMES, int idXchngSem, int idXchngShMem) {
       uint8_t *mem_iv = (uint8_t *) MapSharedMemory(mesShmem->idIvShMem);
       uint8_t *mem_sample = (uint8_t *) MapSharedMemory(mesShmem->idSampleShMem);
 
-      uint32_t *empty = new uint32_t[0];
       uint32_t clear_content_size;
       static uint8_t* clear_content = NULL;
       /* FIXME: Releasing needs to be implemented using a separate
@@ -400,9 +393,6 @@ void doCallback(
   }
 
   const char *temp_message = message.c_str();
-  char ** msg = (char**) &temp_message;
-
-  int * argp = reinterpret_cast<int*>(&error);
 
   int sid_size = strlen(sid);
 
