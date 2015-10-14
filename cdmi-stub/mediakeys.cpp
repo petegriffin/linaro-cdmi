@@ -61,7 +61,7 @@ CDMi_RESULT CMediaKeys::CreateMediaKeySession(
     IMediaKeySession **f_ppiMediaKeySession) {
   cout << "#CMediaKeys::CreateMediaKeySession" << endl;
 
-  CDMi_RESULT dr = CDMi_S_FALSE;
+  CDMi_RESULT dr;
   CMediaKeySession *poMediaKeySession = NULL;
 
   *f_ppiMediaKeySession = NULL;
