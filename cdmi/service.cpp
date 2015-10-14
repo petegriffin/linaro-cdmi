@@ -443,5 +443,5 @@ void doCallback(
     default:
       CDMI_ELOG() << "doCallback: unknown eventType" ;
     }
-    free(dst);
+    delete[] dst;
 }
