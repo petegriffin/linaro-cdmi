@@ -30,11 +30,11 @@ esac],
 [debug=false])
 
 if  test x"$debug" = x"true"; then
-  AC_SUBST(AM_CXXFLAGS, "-g3 -O0 -DDEBUG -Werror")
-  AC_SUBST(AM_CFLAGS, "-g3 -O0 -DDEBUG -Werror")
+  AC_SUBST(AM_CXXFLAGS, "-g3 -O0 -DDEBUG -Werror -Wall")
+  AC_SUBST(AM_CFLAGS, "-g3 -O0 -DDEBUG -Werror -Wall")
 else
-  AC_SUBST(AM_CXXFLAGS, "-O2 -Werror")
-  AC_SUBST(AM_CFLAGS, "-O2 -Werror")
+  AC_SUBST(AM_CXXFLAGS, "-O2 -Werror -Wall")
+  AC_SUBST(AM_CFLAGS, "-O2 -Werror -Wall")
 fi
 
 
