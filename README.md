@@ -5,10 +5,7 @@ for creating this fork is to taget the outstanding issues with Open CDM describe
 
 https://groups.google.com/forum/#!topic/opencdm/ovamIrJn3z0
 
-
-# Open Content Decryption Module CDMi
-
-The Open Content Decryption Module CDMi is to be used with the [Open Content Decryption Module (OCDM)](https://github.com/fraunhoferfokus/open-content-decryption-module). It is meant to run as a service connecting the webbrowser with the actual CDM. Any CDM that follows the Content Decryption Module Interface (CDMi) [1] can be used with this service. Together, both components enable DRM interoperability to be used with HTML5 based browser environments [2] according to W3C EME [3] specification.
+The Linaro CDMi is to be used with the [Linaro CDM](https://github.com/kuscsik/linaro-cdm). It is meant to run as a service connecting the webbrowser with the actual CDM. Any CDM that follows the Content Decryption Module Interface (CDMi) [1] can be used with this service. Together, both components enable DRM interoperability to be used with HTML5 based browser environments [2] according to W3C EME [3] specification.
 
 This repository provides a bare bones implementation to demonstrate how a CDM can be adapted to be used with OCDM through the CDMi interface. The implementation provides the complete flow between webbrowser and CDM.
 
