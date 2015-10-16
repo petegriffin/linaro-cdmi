@@ -156,8 +156,7 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
   g_pnum = sessionmessage->callback_info.prog_num;
 
   if (g_pMediaKeys) {
-    IMediaKeySession *p_mediaKeySession =
-        reinterpret_cast<IMediaKeySession*>(malloc(sizeof(IMediaKeySession)));
+    IMediaKeySession *p_mediaKeySession;
     cr = g_pMediaKeys->CreateMediaKeySession(
         sessionmessage->init_data_type.init_data_type_val,
         sessionmessage->init_data.init_data_val,
@@ -248,7 +247,7 @@ rpc_response_generic* rpc_open_cdm_mediakeysession_release_1_svc(
   if (p_mediaKeySession) {
     p_mediaKeySession->Close();
     g_mediaKeySessions.erase(params->session_id.session_id_val);
-    free(p_mediaKeySession);
+    g_pMediaKeys->DestroyMediaKeySession(p_mediaKeySession);
     cr = CDMi_SUCCESS;
   } else {
     cr = CDMi_S_FALSE;
