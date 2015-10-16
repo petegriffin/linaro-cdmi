@@ -25,13 +25,23 @@
 #include "json_web_key.h"
 #include "keypairs.h"
 
-#define DESTINATION_URL_PLACEHOLDER "http://no-valid-license-server"
+#define DESTINATION_URL_PLACEHOLDER ""
+
 #define NYI_KEYSYSTEM "keysystem-placeholder"
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 
 
 #define kDecryptionKeySize 16
+
+#define kPersistentLicenceRequest " \
+{\
+    'kids':\
+          [\
+               'LwVHf8JLtPrv2GUXFW2v',\
+                 ],\
+    'type':\"persistent-license\"\
+}"\
 
 using namespace std;
 
@@ -77,7 +87,8 @@ CMediaKeySession::~CMediaKeySession(void) {}
 
 char* CMediaKeySession::RunAndGetLicenceChallange(
     const IMediaKeySessionCallback *f_piMediaKeySessionCallback) {
-  int ret;
+  int err;
+  char* result;
   pthread_t thread;
 
   cout << "#mediakeysession.Run" << endl;
@@ -85,8 +96,8 @@ char* CMediaKeySession::RunAndGetLicenceChallange(
   if (f_piMediaKeySessionCallback != NULL) {
     m_piCallback = const_cast<IMediaKeySessionCallback *>(f_piMediaKeySessionCallback);
 
-    ret = pthread_create(&thread, NULL, CMediaKeySession::_CallRunThread, this);
-    if (ret == 0) {
+    err = pthread_create(&thread, NULL, CMediaKeySession::_CallRunThread, this);
+    if (err == 0) {
       pthread_detach(thread);
     } else {
       cout << "#mediakeysession.Run: err: could not create thread" << endl;
@@ -95,7 +106,9 @@ char* CMediaKeySession::RunAndGetLicenceChallange(
   } else {
     cout << "#mediakeysession.Run: err: MediaKeySessionCallback NULL?" << endl;
   }
-  return NULL;
+  result = (char*) malloc(sizeof(char) * (strlen(kPersistentLicenceRequest) + 1));
+  strncpy(result, kPersistentLicenceRequest, strlen(kPersistentLicenceRequest));
+  return result;
 }
 
 void* CMediaKeySession::_CallRunThread(void *arg) {

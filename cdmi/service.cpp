@@ -142,9 +142,10 @@ rpc_response_generic* rpc_open_cdm_mediakeys_1_svc(
 rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
   rpc_request_create_session *sessionmessage, struct svc_req *) {
   static CDMi_RESULT cr = CDMi_S_FALSE;
-  rpc_response_create_session *response =
+  static rpc_response_create_session *response =
       reinterpret_cast<rpc_response_create_session*>(
       malloc(sizeof(rpc_response_create_session)));
+
   IMediaKeySessionCallback *callback = NULL;
   char *dst, *lic;
 
@@ -177,14 +178,23 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
       callback = new CCallback(p_mediaKeySession);
       // generates challenge
       lic = p_mediaKeySession->RunAndGetLicenceChallange(callback);
-      CDMI_WLOG() << "Licesnse :" << lic;
-      response->licence_req.licence_req_len = strlen(lic);
-      response->licence_req.licence_req_val = lic;
+      if(lic) {
+        CDMI_WLOG() << "License :" << lic ;
+        /* Free old response */
+        if(response->licence_req.licence_req_val)
+          free(response->licence_req.licence_req_val);
+
+        response->licence_req.licence_req_len = strlen(lic);
+        response->licence_req.licence_req_val = lic;
+      } else {
+        CDMI_ELOG() << "Failed obtain license from CDMI";
+        cr = CDMi_S_FALSE;
+      }
+
     }  else {
       CDMI_ELOG() << "Failed to create session" ;
     }
   }
-
   response->platform_val = cr;
   return response;
 }
