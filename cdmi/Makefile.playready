@@ -1,10 +1,7 @@
-cdmiservice_LDADD += -l:cdmi.a \
-	-l:drmestreal.a \
-	-l:drmdatastorereal.a \
-	-l:libplayreadypk.a \
-	-l:oemnw.a\
-	-l:oemteeaes128ctr.a\
-	-l:oem_linux.a\
-	-l:oemteeproxypassthrough.a\
-	-l:oem_linux_tee.a
+cdmiservice_LDADD += \
+  -l:cdmi.a \
+  -lplayreadypksoftwaretee \
+  -l:oem_linux.a\
+  -l:oemnw.a\
+  -l:oemteeaes128ctr.a
 
