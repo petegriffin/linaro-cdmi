@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "imp.h"
+#include <cdmi-log.h>
 
 using namespace std;
 
@@ -59,7 +60,7 @@ CDMi_RESULT CMediaKeys::CreateMediaKeySession(
     const uint8_t *f_pbCDMData,
     uint32_t f_cbCDMData,
     IMediaKeySession **f_ppiMediaKeySession) {
-  cout << "#CMediaKeys::CreateMediaKeySession" << endl;
+  CDMI_DLOG() << "#CMediaKeys::CreateMediaKeySession" << endl;
 
   CDMi_RESULT dr;
   CMediaKeySession *poMediaKeySession = NULL;
@@ -67,8 +68,6 @@ CDMi_RESULT CMediaKeys::CreateMediaKeySession(
   *f_ppiMediaKeySession = NULL;
 
   poMediaKeySession = new CMediaKeySession(CMediaKeys::CreateSessionId());
-
-  cout << "#CMediaKeys::CreateMediaKeySession: created new CMediaKeySession" << endl;
 
   dr = poMediaKeySession->Init(f_pbInitData,
       f_cbInitData,
