@@ -23,7 +23,7 @@
 
 using namespace std;
 
-namespace CDMi {
+BEGIN_NAMESPACE_OCDM()
 
 uint32_t CMediaKeys::s_sessionCnt = 10;
 
@@ -110,4 +110,4 @@ CDMi_RESULT DestroyMediaKeys(IMediaKeys *f_piMediaKeys) {
   return dr;
 }
 
-}  // namespace CDMi
+END_NAMESPACE_OCDM()

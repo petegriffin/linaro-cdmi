@@ -45,7 +45,7 @@
 
 using namespace std;
 
-namespace CDMi {
+BEGIN_NAMESPACE_OCDM()
 
 static media::KeyIdAndKeyPairs g_keys;
 
@@ -245,4 +245,4 @@ CDMi_RESULT CMediaKeySession::ReleaseClearContent(
         uint8_t  *f_pbClearContentOpaque ){
     free(f_pbClearContentOpaque);
   }
-}  // namespace CDMi
+END_NAMESPACE_OCDM()

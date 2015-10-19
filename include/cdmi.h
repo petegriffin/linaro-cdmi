@@ -19,9 +19,9 @@
 #define OCDM_INCLUDE_CDMI_H__
 
 #include <stdint.h>
+#include "cdmi-defs.h"
 
-namespace CDMi
-{
+BEGIN_NAMESPACE_OCDM()
 
 // EME error code to which CDMi errors are mapped. Please
 // refer to the EME spec for details of the errors
@@ -199,6 +199,6 @@ CDMi_RESULT CreateMediaEngineSession(
 CDMi_RESULT DestroyMediaEngineSession(
     IMediaEngineSession *f_piMediaEngineSession); //__in 
 
-} // namespace CDMi
+END_NAMESPACE_OCDM()
 
 #endif //OCDM_INCLUDE_CDMI_H__

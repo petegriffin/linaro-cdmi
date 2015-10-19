@@ -37,7 +37,8 @@ extern "C" {
 #include "opencdm_callback.h"
 }
 
-using namespace CDMi;
+USE_NAMESPACE_OCDM()
+
 using namespace std;
 
 /* Compare operator for std::map */
