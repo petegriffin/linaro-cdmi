@@ -15,6 +15,9 @@
  */
 
 // For the support of portable data types such as uint8_t.
+#ifndef OCDM_INCLUDE_CDMI_H__
+#define OCDM_INCLUDE_CDMI_H__
+
 #include <stdint.h>
 
 namespace CDMi
@@ -197,3 +200,5 @@ CDMi_RESULT DestroyMediaEngineSession(
     IMediaEngineSession *f_piMediaEngineSession); //__in 
 
 } // namespace CDMi
+
+#endif //OCDM_INCLUDE_CDMI_H__
