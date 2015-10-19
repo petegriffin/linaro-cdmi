@@ -7,12 +7,12 @@ else
 AM_CXXFLAGS +=
 endif
 
-cdmiservice_LDADD = ${top_srcdir}/rpc/libocdm_rpc.a
+cdmiservice_LDADD = ..//rpc/libocdm_rpc.a
 
 if USE_PLAYREADY_CDMI
 include Makefile.playready
 else
-cdmiservice_LDADD += ${top_srcdir}/cdmi-stub/libcdmi.a
+cdmiservice_LDADD += ../cdmi-stub/libcdmi.a
 endif
 
 if OPENSSL
