@@ -1,4 +1,4 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = cdmi-stub rpc cdmi
+SUBDIRS = rpc cdmi-stub cdmi
 EXTRA_DIST = autogen.sh include/cdmi.h
 
