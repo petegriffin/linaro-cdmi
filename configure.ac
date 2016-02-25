@@ -73,4 +73,17 @@ fi
 
 AM_CONDITIONAL(USE_PLAYREADY_CDMI, test $ac_enable_playready = yes)
 
+AC_ARG_ENABLE(aes-ta, AC_HELP_STRING([--enable-aes-ta],
+                      [enable aes TA CDMI (default is no)]),
+                    ac_enable_aes_ta=$enableval,
+                    ac_enable_aes_ta=no)
+
+
+if test "$ac_enable_aes_ta" = yes; then
+  AC_DEFINE(USE_AES_TA, 1, [enable aes ta])
+fi
+
+AM_CONDITIONAL(USE_AES_TA, test $ac_enable_aes_ta = yes)
+
+
 AC_OUTPUT(Makefile cdmi-stub/Makefile rpc/Makefile cdmi/Makefile)

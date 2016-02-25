@@ -19,6 +19,11 @@ if OPENSSL
 cdmiservice_LDADD += -lcrypto -lssl
 endif
 
+if USE_AES_TA
+cdmiservice_LDADD += -laes_crypto
+endif
+
+
 AM_CXXFLAGS += -std=c++11 \
  	  -I${top_srcdir}/include \
     -I${top_srcdir}/rpc \

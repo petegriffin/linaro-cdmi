@@ -28,9 +28,12 @@
 #define DESTINATION_URL_PLACEHOLDER ""
 
 #define NYI_KEYSYSTEM "keysystem-placeholder"
+#ifndef USE_AES_TA
 #include <openssl/aes.h>
 #include <openssl/evp.h>
-
+#else
+#include <aes_crypto.h>
+#endif
 
 #define kDecryptionKeySize 16
 
@@ -48,6 +51,7 @@ using namespace std;
 BEGIN_NAMESPACE_OCDM()
 
 static media::KeyIdAndKeyPairs g_keys;
+static int tee_session_initialized = 0;
 
 static void hex_print(const void* pv, size_t len)
 {
@@ -159,7 +163,13 @@ void CMediaKeySession::Update(
   m_piCallback->OnKeyStatusUpdate(keys_updated.data());
 }
 
-void CMediaKeySession::Close(void) {}
+void CMediaKeySession::Close(void) {
+#ifdef USE_AES_TA
+  tee_session_initialized--;
+  if(tee_session_initialized == 0)
+    TEE_crypto_close();
+#endif
+}
 
 const char *CMediaKeySession::GetSessionId(void) const {
   return m_sessionId;
@@ -175,6 +185,12 @@ CDMi_RESULT CMediaKeySession::Init(
     uint32_t f_cbInitData,
     const uint8_t *f_pbCDMData,
     uint32_t f_cbCDMData) {
+#ifdef USE_AES_TA
+   if(!tee_session_initialized) {
+     TEE_crypto_init();
+   }
+   tee_session_initialized++;
+#endif
   return CDMi_SUCCESS;
 }
 
@@ -219,15 +235,20 @@ CDMi_RESULT CMediaKeySession::Decrypt(
   }
 
   key = (g_keys[0].second).data();
-
+#ifndef USE_AES_TA
   AES_set_encrypt_key(reinterpret_cast<const unsigned char*>(key),
                           strlen(key) * 8, &aes_key) ;
+#endif
 
   memcpy(&(ivec[0]), f_pbIV, f_cbIV);
-
+#ifndef USE_AES_TA
   AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData), out,
                      f_cbData, &aes_key, ivec, ecount_buf, &block_offset);
-
+#else
+  TEE_AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData),
+                     out, f_cbData, &aes_key,
+                     ivec, ecount_buf, &block_offset);
+#endif
   /* Return clear content */
   *f_pcbOpaqueClearContent = f_cbData;
   *f_ppbOpaqueClearContent = out;
