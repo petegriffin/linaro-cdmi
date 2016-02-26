@@ -32,7 +32,9 @@
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 #else
+extern "C" {
 #include <aes_crypto.h>
+}
 #endif
 
 #define kDecryptionKeySize 16
@@ -46,6 +48,10 @@
     'type':\"persistent-license\"\
 }"\
 
+#ifdef USE_AES_TA
+/* Map between OP TEE TA and OpenSSL */
+#define AES_BLOCK_SIZE CTR_AES_BLOCK_SIZE
+#endif
 using namespace std;
 
 BEGIN_NAMESPACE_OCDM()
@@ -207,7 +213,8 @@ CDMi_RESULT CMediaKeySession::Decrypt(
       uint32_t f_cbData,
       uint32_t *f_pcbOpaqueClearContent,
       uint8_t **f_ppbOpaqueClearContent) {
-  AES_KEY aes_key;
+
+
   uint8_t * out; /* Faked secure buffer */
   const char * key;
 
@@ -235,20 +242,24 @@ CDMi_RESULT CMediaKeySession::Decrypt(
   }
 
   key = (g_keys[0].second).data();
+
 #ifndef USE_AES_TA
+  AES_KEY aes_key;
   AES_set_encrypt_key(reinterpret_cast<const unsigned char*>(key),
                           strlen(key) * 8, &aes_key) ;
 #endif
 
   memcpy(&(ivec[0]), f_pbIV, f_cbIV);
+
 #ifndef USE_AES_TA
   AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData), out,
                      f_cbData, &aes_key, ivec, ecount_buf, &block_offset);
 #else
   TEE_AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData),
-                     out, f_cbData, &aes_key,
+                     out, f_cbData, key,
                      ivec, ecount_buf, &block_offset);
 #endif
+
   /* Return clear content */
   *f_pcbOpaqueClearContent = f_cbData;
   *f_ppbOpaqueClearContent = out;

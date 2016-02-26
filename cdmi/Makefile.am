@@ -20,7 +20,7 @@ cdmiservice_LDADD += -lcrypto -lssl
 endif
 
 if USE_AES_TA
-cdmiservice_LDADD += -laes_crypto
+cdmiservice_LDADD += -laes_crypto -lteec
 endif
 
 
