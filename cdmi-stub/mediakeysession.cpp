@@ -39,14 +39,13 @@ extern "C" {
 
 #define kDecryptionKeySize 16
 
-#define kPersistentLicenceRequest " \
+#define kPersistentLicenceRequest "\
 {\
     'kids':\
-          [\
-               'LwVHf8JLtPrv2GUXFW2v',\
-                 ],\
-    'type':\"persistent-license\"\
-}"\
+    [\
+    'LwVHf8JLtPrv2GUXFW2v',\
+    ],\
+    'type':\"persistent-license\"}"
 
 #ifdef USE_AES_TA
 /* Map between OP TEE TA and OpenSSL */
@@ -130,7 +129,7 @@ void* CMediaKeySession::_CallRunThread2(void *arg) {
 }
 
 void* CMediaKeySession::RunThread(int i) {
-  cout << "#mediakeysession._RunThread" << endl;
+  cout << "#mediakeysession._RunThread : " << i << endl;
 
   if(!m_piCallback) {
     cerr << "Callback function not set" <<endl;
@@ -140,7 +139,7 @@ void* CMediaKeySession::RunThread(int i) {
   if (i == 1) {
     m_piCallback->OnKeyMessage(NULL, 0, const_cast<char*>(DESTINATION_URL_PLACEHOLDER));
   } else {
-    m_piCallback->OnKeyReady();
+//    m_piCallback->OnKeyReady();
   }
 }
 
@@ -166,7 +165,7 @@ void CMediaKeySession::Update(
     return;
   }
   keys_updated = keyIdAndKeyPairsToJSON(&g_keys);
-  m_piCallback->OnKeyStatusUpdate(keys_updated.data());
+  m_piCallback->OnKeyStatusUpdate(key_string.c_str());
 }
 
 void CMediaKeySession::Close(void) {
