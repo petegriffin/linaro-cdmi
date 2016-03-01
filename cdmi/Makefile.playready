@@ -1,8 +1,8 @@
 
 cdmiservice_LDADD += \
-  -l:cdmi.a \
+  -lcdmi \
 	-lplayreadypk \
 	-lpritee \
 	-lteec\
-	-l:oem_linux.a \
-	-l:oemnw.a
+	-loem_linux \
+	-loemnw
