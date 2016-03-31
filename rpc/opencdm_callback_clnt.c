@@ -7,7 +7,7 @@
 #include "opencdm_callback.h"
 
 /* Default timeout can be changed using clnt_control() */
-static struct timeval TIMEOUT = { 25, 0 };
+static struct timeval TIMEOUT = { 1, 0 };
 
 void *
 on_message_1(rpc_cb_message *argp, CLIENT *clnt)
