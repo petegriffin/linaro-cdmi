@@ -254,9 +254,12 @@ CDMi_RESULT CMediaKeySession::Decrypt(
   AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData), out,
                      f_cbData, &aes_key, ivec, ecount_buf, &block_offset);
 #else
-  TEE_AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData),
+  if(TEE_AES_ctr128_encrypt(reinterpret_cast<const unsigned char*>(f_pbData),
                      out, f_cbData, key,
-                     ivec, ecount_buf, &block_offset);
+                     ivec, ecount_buf, &block_offset) !=0) {
+      cout << "ERROR: AES CTR128 Decryption failed\n";
+      goto fail;
+  }
 #endif
 
   /* Return clear content */
