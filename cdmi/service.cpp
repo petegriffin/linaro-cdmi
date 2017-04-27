@@ -145,7 +145,7 @@ rpc_response_create_session* rpc_open_cdm_mediakeys_create_session_1_svc(
   static CDMi_RESULT cr = CDMi_S_FALSE;
   static rpc_response_create_session *response =
       reinterpret_cast<rpc_response_create_session*>(
-      malloc(sizeof(rpc_response_create_session)));
+      calloc(1, sizeof(rpc_response_create_session)));
 
   IMediaKeySessionCallback *callback = NULL;
   char *dst, *lic;
