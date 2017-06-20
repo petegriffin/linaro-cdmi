@@ -4,5 +4,4 @@ cdmiservice_LDADD += \
 	-lplayreadypk \
 	-lpritee \
 	-lteec\
-	-loem_linux \
-	-loemnw
+	-loem_linux
