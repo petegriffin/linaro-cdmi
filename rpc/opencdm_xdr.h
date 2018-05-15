@@ -143,6 +143,10 @@ extern  rpc_response_generic * rpc_open_cdm_mediakeysession_release_1_svc(rpc_re
 extern  rpc_response_generic * rpc_open_cdm_mediaengine_1(rpc_request_mediaengine_data *, CLIENT *);
 extern  rpc_response_generic * rpc_open_cdm_mediaengine_1_svc(rpc_request_mediaengine_data *, struct svc_req *);
 extern int open_cdm_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
+//WPE
+#define RPC_OPEN_CDM_MEDIAKEYS_SET_SERVER_CERTIFICATE 8
+#define RPC_OPEN_CDM_MEDIAKEYSESSION_REMOVE 9
+#define RPC_OPEN_CDM_MEDIAKEYSESSION_CLOSE 10
 
 #else /* K&R C */
 #define RPC_OPEN_CDM_IS_TYPE_SUPPORTED 1
@@ -167,6 +171,10 @@ extern  rpc_response_generic * rpc_open_cdm_mediakeysession_release_1_svc();
 extern  rpc_response_generic * rpc_open_cdm_mediaengine_1();
 extern  rpc_response_generic * rpc_open_cdm_mediaengine_1_svc();
 extern int open_cdm_1_freeresult ();
+//WPE
+#define RPC_OPEN_CDM_MEDIAKEYS_SET_SERVER_CERTIFICATE 8
+#define RPC_OPEN_CDM_MEDIAKEYSESSION_REMOVE 9
+#define RPC_OPEN_CDM_MEDIAKEYSESSION_CLOSE 10
 #endif /* K&R C */
 
 /* the xdr functions */
