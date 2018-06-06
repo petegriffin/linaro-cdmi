@@ -59,7 +59,7 @@ vector<IMediaEngineSession *> g_mediaEngineSessions;
 char g_hostname[256];
 u_long g_pnum;  // program number for callback routine
 
-void doCallback(int, string, int, const char*);
+void doCallback(int, string, int, const char*, const char*);
 
 
 class CCallback : public IMediaKeySessionCallback {
@@ -82,21 +82,21 @@ class CCallback : public IMediaKeySessionCallback {
 
     message =  std::string((const char*) pbKeyMessage, cbKeyMessage);
 
-    doCallback(ON_MESSAGE, message.c_str(), CDMi_SUCCESS, m_mediaKeySession->GetSessionId());
+    doCallback(ON_MESSAGE, message.c_str(), CDMi_SUCCESS, m_mediaKeySession->GetSessionId(), f_pszUrl);
   }
 
   virtual void OnKeyReady(void) {
     CDMI_DLOG() << "OnKeyReady: Key is ready.";
-    doCallback(ON_READY, "", 0, m_mediaKeySession->GetSessionId());
+    doCallback(ON_READY, "", 0, m_mediaKeySession->GetSessionId(), NULL);
   }
 
   virtual void OnKeyError(int16_t f_nError, CDMi_RESULT error) {
     CDMI_DLOG() << "Key error is detected: " << error;
-    doCallback(ON_ERROR, "", error, m_mediaKeySession->GetSessionId());
+    doCallback(ON_ERROR, "", error, m_mediaKeySession->GetSessionId(), NULL);
   }
 
   virtual void OnKeyStatusUpdate(const char* keyMessage) {
-    doCallback(ON_KEY_STATUS_UPDATE, keyMessage, 0, m_mediaKeySession->GetSessionId());
+    doCallback(ON_KEY_STATUS_UPDATE, keyMessage, 0, m_mediaKeySession->GetSessionId(), NULL);
  }
 
  private:
@@ -392,7 +392,8 @@ void doCallback(
     int eventType,
     string message = "",
     int error = 0,
-    const char *sid = NULL) {
+    const char *sid = NULL, 
+    const char *f_pszUrl = NULL) {
   CLIENT *clnt;
 
   gethostname(g_hostname, sizeof(g_hostname));
@@ -418,7 +419,7 @@ void doCallback(
       rpc_cb_message km;
       km.session_id.session_id_len = sid_size;
       km.session_id.session_id_val = dst;
-      km.destination_url = const_cast<char*>(temp_message);
+      km.destination_url = const_cast<char*>(f_pszUrl);
       km.message = const_cast<char*>(temp_message);
       on_message_1(&km, clnt);
       break;
