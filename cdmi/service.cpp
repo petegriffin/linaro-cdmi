@@ -313,7 +313,7 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
       uint8_t *mem_iv = (uint8_t *) MapSharedMemory(mesShmem->idIvShMem);
       uint8_t *mem_sample = (uint8_t *) MapSharedMemory(mesShmem->idSampleShMem);
 
-      uint32_t clear_content_size;
+      static uint32_t clear_content_size = 0;
       static uint8_t* clear_content = NULL;
       /* FIXME: Releasing needs to be implemented using a separate
        *  IPC call. Currently we assume that the previous decrypted clear
