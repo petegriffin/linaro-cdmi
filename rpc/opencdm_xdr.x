@@ -72,6 +72,11 @@ struct rpc_response_generic {
     int platform_val;
 };
 
+struct rpc_response_create_mediaengine_session {
+    int platform_val;
+    int socket_channel_id;
+};
+
 struct rpc_response_create_session {
     int platform_val;
     char session_id <>;
@@ -86,6 +91,6 @@ program OPEN_CDM {
     rpc_response_generic RPC_OPEN_CDM_MEDIAKEYS_LOAD_SESSION(rpc_request_load_session) = 4;
     rpc_response_generic RPC_OPEN_CDM_MEDIAKEYSESSION_UPDATE(rpc_request_session_update) = 5;
     rpc_response_generic RPC_OPEN_CDM_MEDIAKEYSESSION_RELEASE(rpc_request_session_release) = 6;
-    rpc_response_generic RPC_OPEN_CDM_MEDIAENGINE(rpc_request_mediaengine_data) = 7;
+    rpc_response_create_mediaengine_session RPC_OPEN_CDM_MEDIAENGINE(rpc_request_mediaengine_data) = 7;
     } = 1;
 } = 0x61135687; /* FAMEFHG */

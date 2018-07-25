@@ -359,12 +359,12 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
   }
 }
 
-rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
+rpc_response_create_mediaengine_session* rpc_open_cdm_mediaengine_1_svc(
   rpc_request_mediaengine_data *params, struct svc_req *) {
   static CDMi_RESULT cr = CDMi_S_FALSE;
-  rpc_response_generic *response =
-      reinterpret_cast<rpc_response_generic*>(
-      malloc(sizeof(rpc_response_generic)));
+  rpc_response_create_mediaengine_session *response =
+      reinterpret_cast<rpc_response_create_mediaengine_session*>(
+      calloc(1, sizeof(rpc_response_create_mediaengine_session)));
   IMediaKeySession *p_mediaKeySession;
   IMediaEngineSession *pMediaEngineSession = NULL;
 
@@ -390,6 +390,7 @@ rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
   }
 
   response->platform_val = cr;
+  response->socket_channel_id = 0;
   return response;
 }
 

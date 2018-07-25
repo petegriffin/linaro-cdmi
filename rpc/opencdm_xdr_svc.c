@@ -75,7 +75,7 @@ open_cdm_1(struct svc_req *rqstp, register SVCXPRT *transp)
 
 	case RPC_OPEN_CDM_MEDIAENGINE:
 		_xdr_argument = (xdrproc_t) xdr_rpc_request_mediaengine_data;
-		_xdr_result = (xdrproc_t) xdr_rpc_response_generic;
+		_xdr_result = (xdrproc_t) xdr_rpc_response_create_mediaengine_session;
 		local = (char *(*)(char *, struct svc_req *)) rpc_open_cdm_mediaengine_1_svc;
 		break;
 
