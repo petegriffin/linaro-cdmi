@@ -32,10 +32,16 @@
 #include "cdmi-log.h"
 #include "shmemsem/shmemsem_helper.h"
 
+#ifdef CFG_SECURE_DATA_PATH
+#include "socket_server_helper.h"
+#endif
+
 extern "C" {
 #include "opencdm_xdr.h"
 #include "opencdm_callback.h"
 }
+
+
 
 USE_NAMESPACE_OCDM()
 
@@ -259,10 +265,24 @@ rpc_response_generic* rpc_open_cdm_mediakeysession_release_1_svc(
   return response;
 }
 
-void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
+
+void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem, int idSocketChannel) {
+#ifdef CFG_SECURE_DATA_PATH
+  SocketServer socketServer;
+#endif
+  int secureFd = -1;
+  uint32_t secureMemSize = 0;
+  
   shmem_info *mesShmem;
   IMediaEngineSession *pMediaEngineSession = NULL;
   mesShmem = (shmem_info *) MapSharedMemory(idXchngShMem);
+
+#ifdef CFG_SECURE_DATA_PATH
+  // Establish connection to transfer the secure file descriptor.
+  if(socketServer.Connect(idSocketChannel) < 0) {
+    return;
+  }
+#endif
 
   for (;;) {
 
@@ -271,7 +291,7 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
       CDMI_ELOG() << "decryptShmem: invalid media engine session idx: "
            << idxMES;
       cr = CDMi_S_FALSE;
-      return;
+      break;
     }
 
     pMediaEngineSession = g_mediaEngineSessions.at(idxMES);
@@ -279,13 +299,13 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
     if (pMediaEngineSession == NULL) {
       CDMI_ELOG() << "decryptShmem: no valid media engine session found";
       cr = CDMi_S_FALSE;
-      return;
+      break;
     } else {
       /*
        * TODO: (init, on create mes)
        *  1. transfer id of static info shmem (from client to cdmi)
        *  2. associate with mes
-       * 
+       *
        * TODO:
        *  1. get both shmems for corresponding media engine
        *  2. wait for access (lock)
@@ -293,7 +313,7 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
        *  4. get dynamic shmem with sampledata
        *  5. decrypt inplace
        *  6. unlock both shmem
-       * 
+       *
        *  HOWTO: reach end of loop, signaling end of segment?
        */
 
@@ -313,7 +333,7 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
       uint8_t *mem_iv = (uint8_t *) MapSharedMemory(mesShmem->idIvShMem);
       uint8_t *mem_sample = (uint8_t *) MapSharedMemory(mesShmem->idSampleShMem);
 
-      uint32_t clear_content_size;
+      static uint32_t clear_content_size = 0;
       static uint8_t* clear_content = NULL;
       /* FIXME: Releasing needs to be implemented using a separate
        *  IPC call. Currently we assume that the previous decrypted clear
@@ -321,6 +341,15 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
        */
       if(clear_content)
         pMediaEngineSession->ReleaseClearContent(clear_content_size, clear_content);
+
+#ifdef CFG_SECURE_DATA_PATH
+      /* Get secure file descriptor. */
+      if(socketServer.ReceiveFileDescriptor(secureFd, secureMemSize) < 0) {
+        cr = CDMi_S_FALSE;
+        goto handle_error;
+      }
+#endif
+
       /* FIXME: We don't support subsamples */
       cr = pMediaEngineSession->Decrypt(
           0,          //number of subsamples
@@ -330,10 +359,13 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
           mesShmem->sampleSize,
           mem_sample,
           &clear_content_size,
-          &clear_content);
+          &clear_content,
+          secureMemSize,
+          secureFd);
       if(cr!=CDMi_SUCCESS)
         CDMI_ELOG() << "Failed to decrypt sample. Error:" << cr;
 
+#ifndef CFG_SECURE_DATA_PATH
       // FIXME: opencdm uses a single buffer for passing the
       //  encrypted and decrypted buffer. Due to this we need an
       //  additional memcpy
@@ -343,6 +375,13 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
           "buffer size"  << mesShmem->sampleSize;
 
       memcpy(mem_sample, clear_content, MIN(mesShmem->sampleSize, clear_content_size) );
+#endif
+
+#ifdef CFG_SECURE_DATA_PATH
+handle_error:
+      socketServer.CloseFileDescriptor(secureFd);
+      secureFd = -1;
+#endif
 
       // detach all shared memories!
       DetachExistingSharedMemory(mem_iv);
@@ -352,20 +391,30 @@ void decryptShmem(unsigned int idxMES, int idXchngSem, int idXchngShMem) {
       UnlockSemaphore(idXchngSem, SEM_XCHNG_PULL);
     }
   }
+#ifdef CFG_SECURE_DATA_PATH
+  socketServer.Disconnect();
+#endif
 }
 
-rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
+rpc_response_create_mediaengine_session* rpc_open_cdm_mediaengine_1_svc(
   rpc_request_mediaengine_data *params, struct svc_req *) {
   static CDMi_RESULT cr = CDMi_S_FALSE;
-  rpc_response_generic *response =
-      reinterpret_cast<rpc_response_generic*>(
-      malloc(sizeof(rpc_response_generic)));
+  rpc_response_create_mediaengine_session *response =
+      reinterpret_cast<rpc_response_create_mediaengine_session*>(
+      calloc(1, sizeof(rpc_response_create_mediaengine_session)));
   IMediaKeySession *p_mediaKeySession;
   IMediaEngineSession *pMediaEngineSession = NULL;
 
   CDMI_DLOG() << "#cdm_mediaenginesession_rpc_1_svc: "
       << params->id_exchange_shmem << " "
       << params->id_exchange_sem;
+
+#ifdef CFG_SECURE_DATA_PATH
+  response->socket_channel_id = SocketServer::GetUniqueId();
+  CDMI_DLOG() << "Unique socket channel ID is " << response->socket_channel_id;
+#else
+  response->socket_channel_id = 0; // Only used by SDP implementation.
+#endif
 
   std::string sid = std::string(params->session_id.session_id_val, params->session_id.session_id_len);
 
@@ -378,7 +427,8 @@ rpc_response_generic* rpc_open_cdm_mediaengine_1_svc(
     thread t(decryptShmem,
         g_mediaEngineSessions.size() - 1,
         params->id_exchange_sem,
-        params->id_exchange_shmem);
+        params->id_exchange_shmem,
+        response->socket_channel_id);
     t.detach();
   } else {
     CDMI_ELOG() << "MediaEngineSession create failed!";

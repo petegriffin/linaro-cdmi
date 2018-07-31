@@ -104,6 +104,12 @@ struct rpc_response_generic {
 };
 typedef struct rpc_response_generic rpc_response_generic;
 
+struct rpc_response_create_mediaengine_session {
+	int platform_val;
+	int socket_channel_id;
+};
+typedef struct rpc_response_create_mediaengine_session rpc_response_create_mediaengine_session;
+
 struct rpc_response_create_session {
 	int platform_val;
 	struct {
@@ -140,8 +146,8 @@ extern  rpc_response_generic * rpc_open_cdm_mediakeysession_update_1_svc(rpc_req
 extern  rpc_response_generic * rpc_open_cdm_mediakeysession_release_1(rpc_request_session_release *, CLIENT *);
 extern  rpc_response_generic * rpc_open_cdm_mediakeysession_release_1_svc(rpc_request_session_release *, struct svc_req *);
 #define RPC_OPEN_CDM_MEDIAENGINE 7
-extern  rpc_response_generic * rpc_open_cdm_mediaengine_1(rpc_request_mediaengine_data *, CLIENT *);
-extern  rpc_response_generic * rpc_open_cdm_mediaengine_1_svc(rpc_request_mediaengine_data *, struct svc_req *);
+extern  rpc_response_create_mediaengine_session * rpc_open_cdm_mediaengine_1(rpc_request_mediaengine_data *, CLIENT *);
+extern  rpc_response_create_mediaengine_session * rpc_open_cdm_mediaengine_1_svc(rpc_request_mediaengine_data *, struct svc_req *);
 extern int open_cdm_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 //WPE
 #define RPC_OPEN_CDM_MEDIAKEYS_SET_SERVER_CERTIFICATE 8
@@ -168,8 +174,8 @@ extern  rpc_response_generic * rpc_open_cdm_mediakeysession_update_1_svc();
 extern  rpc_response_generic * rpc_open_cdm_mediakeysession_release_1();
 extern  rpc_response_generic * rpc_open_cdm_mediakeysession_release_1_svc();
 #define RPC_OPEN_CDM_MEDIAENGINE 7
-extern  rpc_response_generic * rpc_open_cdm_mediaengine_1();
-extern  rpc_response_generic * rpc_open_cdm_mediaengine_1_svc();
+extern  rpc_response_create_mediaengine_session * rpc_open_cdm_mediaengine_1();
+extern  rpc_response_create_mediaengine_session * rpc_open_cdm_mediaengine_1_svc();
 extern int open_cdm_1_freeresult ();
 //WPE
 #define RPC_OPEN_CDM_MEDIAKEYS_SET_SERVER_CERTIFICATE 8
@@ -189,6 +195,7 @@ extern  bool_t xdr_rpc_request_session_update (XDR *, rpc_request_session_update
 extern  bool_t xdr_rpc_request_session_release (XDR *, rpc_request_session_release*);
 extern  bool_t xdr_rpc_request_mediaengine_data (XDR *, rpc_request_mediaengine_data*);
 extern  bool_t xdr_rpc_response_generic (XDR *, rpc_response_generic*);
+extern  bool_t xdr_rpc_response_create_mediaengine_session (XDR *, rpc_response_create_mediaengine_session*);
 extern  bool_t xdr_rpc_response_create_session (XDR *, rpc_response_create_session*);
 
 #else /* K&R C */
@@ -201,6 +208,7 @@ extern bool_t xdr_rpc_request_session_update ();
 extern bool_t xdr_rpc_request_session_release ();
 extern bool_t xdr_rpc_request_mediaengine_data ();
 extern bool_t xdr_rpc_response_generic ();
+extern bool_t xdr_rpc_response_create_mediaengine_session ();
 extern bool_t xdr_rpc_response_create_session ();
 
 #endif /* K&R C */
