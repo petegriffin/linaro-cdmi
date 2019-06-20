@@ -47,7 +47,15 @@ if test "$enable_tirpc" != "no"; then
   AC_CHECK_LIB([tirpc], [clnt_tli_create], , [
   AC_MSG_ERROR([libtirpc not found and is required])
   ])
+  PKG_CHECK_MODULES([TIRPC],
+                    [libtirpc],
+                    [RPC_CFLAGS=$TIRPC_CFLAGS; RPC_LIBS=$TIRPC_LIBS;],
+                    [AC_MSG_ERROR([libtirpc requested, but library not found.])]
+                    )
 fi
+
+AC_SUBST(RPC_CFLAGS)
+AC_SUBST(RPC_LIBS)
 
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 
